@@ -8,12 +8,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+//para ver  las imagenes en la vista
 @Configuration
 public class MvcConfig implements WebMvcConfigurer{
 	
 	//debug del resource path
 	private final Logger log= LoggerFactory.getLogger(getClass()); 
-	@Override
+/*	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		// TODO Auto-generated method stub
 		WebMvcConfigurer.super.addResourceHandlers(registry);
@@ -27,7 +28,7 @@ public class MvcConfig implements WebMvcConfigurer{
 		// solo es la url que apunta al dir fisico
 		registry.addResourceHandler("/uploads/**")
 		.addResourceLocations(resourcePath);//contiene el uploads con la ruta absoluta con esquema file:/
-	}
+	}*/
 
 	
 }
