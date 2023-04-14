@@ -1,18 +1,23 @@
 package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
+import org.springframework.http.HttpHeaders;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -39,23 +44,58 @@ public class ClienteController {
 
 	@Autowired // siempre se inyecta la interfaz para hacerlo generico
 	private IClienteService clienteService;
-	//mostar en la consola y hacer un debug de los nombres del dir
+	// mostar en la consola y hacer un debug de los nombres del dir
 	private final Logger log = LoggerFactory.getLogger(getClass());
+
+	/**
+	 * Mostrar la imagen por Http
+	 * para que spring no trunque o borre la extension del archivo usa la expresion regular ":.+"
+	 * @param filename nombre del archivo
+	 * @return
+	 */
 	
+	@SuppressWarnings("null")
+	@GetMapping(value = "/uploads/{filename:.+}")
+	//de lo contario solo pasaria el nombre "imagen" y no "imagen.jpg"
+	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
+		//dir raiz "uploads" con ruta absoluta C:
+		Path pathFoto = Paths.get("uploads").resolve(filename).toAbsolutePath();
+		//ver la dir en consola
+		log.info("pathFoto: " + pathFoto);
+		Resource recurso = null;
+		try {
+			recurso = new UrlResource(pathFoto.toUri());// (agregar el file:) aqui se carga la imagen
+			// si no existe y no es leible
+			if (!recurso.exists() || !recurso.isReadable()) {
+				throw new RuntimeException("Error: no se puede cargar la imagen: " + pathFoto.toString());
+			}
+		} catch (MalformedURLException e) { //posibilidad de que este mal formada la URL
+			e.printStackTrace();
+		}
+		
+		return //juntar la imagen y la respuesta
+				ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION,
+				"attachment; filename=\"" + recurso.getFilename() + "\"")
+				.body(recurso); //se anexa el recurso al body
+
+	}
+
 	/**
 	 * Metodo para ver el detalle a traves del id
-	 * @param id Id del cliente 
+	 * 
+	 * @param id    Id del cliente
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @param flash para enviar mensajes de confirmacion
-	 * @return 
+	 * @return
 	 */
-	@GetMapping(value="/ver/{id}")
-	public String ver(@PathVariable(value="id") Long id, Map <String,Object> model, RedirectAttributes flash) {
-		//obtener el cliente por id
+	@GetMapping(value = "/ver/{id}")
+	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
+		// obtener el cliente por id
 		Cliente cliente = clienteService.findOne(id);
-		
-		if (cliente==null) {
-			flash.addFlashAttribute("error","El cliente no existe en la base de datos");
+
+		if (cliente == null) {
+			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");
 			return "redirect:/listar";
 		}
 		model.put("cliente", cliente);
@@ -65,6 +105,7 @@ public class ClienteController {
 
 	/**
 	 * Muestra los registros de clientes de manera paginada
+	 * 
 	 * @param page  pagina por default empieza en 0 y se envia a pageRender
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @return devuelve el listar.html
@@ -87,6 +128,7 @@ public class ClienteController {
 
 	/**
 	 * Muestra el formulario para crear el cliente
+	 * 
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @return devuelve el form.html
 	 */
@@ -100,6 +142,7 @@ public class ClienteController {
 
 	/**
 	 * Editar info del cliente
+	 * 
 	 * @param id    Id del cliente a editar
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @param flash para enviar mensajes de confirmacion
@@ -126,12 +169,13 @@ public class ClienteController {
 
 	/**
 	 * Guardar la informacion del cliente a crear
+	 * 
 	 * @param cliente entidad cliente con sus atributos y validar algun error
-	 * @param result debe ir junto al parametro a validar
-	 * @param model se usa para enviar datos a la vista ("ID","Data")
-	 * @param foto parametro que hace referencia al input "fyle" del form.html
-	 * @param flash para enviar mensajes de confirmacion
-	 * @param status para validar los atributos creados en una sesion
+	 * @param result  debe ir junto al parametro a validar
+	 * @param model   se usa para enviar datos a la vista ("ID","Data")
+	 * @param foto    parametro que hace referencia al input "fyle" del form.html
+	 * @param flash   para enviar mensajes de confirmacion
+	 * @param status  para validar los atributos creados en una sesion
 	 * @return nos redirige a listar.html
 	 */
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
@@ -142,29 +186,29 @@ public class ClienteController {
 			model.addAttribute("titulo", "Formulario de cliente");
 			return "form";
 		}
-		 
+
 		if (!foto.isEmpty()) {
-			//para evitar que las img con mismo nombre se reemplazen
-			//Universaly unic identifier
+			// para evitar que las img con mismo nombre se reemplazen
+			// Universaly unic identifier
 			String uniqueFilename = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
-			//imagenes guardadas fuera del proyecto
+			// imagenes guardadas fuera del proyecto
 			Path rootPath = Paths.get("uploads").resolve(uniqueFilename);
 			Path rootAbsolutPath = rootPath.toAbsolutePath();
-			log.info("rootPath: " + rootPath); //path relativo al proyecto (se muestra en consola)
+			log.info("rootPath: " + rootPath); // path relativo al proyecto (se muestra en consola)
 			log.info("rootAbsolutePath: " + rootAbsolutPath); // path absoluto (se muestra en consola)
-			
+
 			try {
-				//copiar la img a subir a uploads
+				// copiar la img a subir a uploads
 				Files.copy(foto.getInputStream(), rootAbsolutPath);
-				flash.addFlashAttribute("info","Has subido correctamente '" + uniqueFilename + "'");
+				flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
 				cliente.setFoto(uniqueFilename);
-				
+
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-			}
-		
+
+		}
+
 		String mensajeFlash = (cliente.getId() != null) ? "Cliente editado con exito" : "Cliente creado con exito";
 		clienteService.save(cliente);
 		status.setComplete(); // aqui elimina el objeto cliente de la sesion
@@ -174,8 +218,8 @@ public class ClienteController {
 
 	/**
 	 * 
-	 * @param id Id del cliente a eliminar
-	 * @param flash enviar mensajes de confirmacion 
+	 * @param id    Id del cliente a eliminar
+	 * @param flash enviar mensajes de confirmacion
 	 * @return redirect to listar.html
 	 */
 	@RequestMapping(value = "/eliminar/{id}")
