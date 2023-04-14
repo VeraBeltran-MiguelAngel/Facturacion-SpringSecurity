@@ -1,5 +1,6 @@
 package com.bolsadeideas.springboot.app.controllers;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -46,12 +47,14 @@ public class ClienteController {
 	private IClienteService clienteService;
 	// mostar en la consola y hacer un debug de los nombres del dir
 	private final Logger log = LoggerFactory.getLogger(getClass());
+	
+	private final static String UPLOADS_FOLDER ="uploads";
 
 	/**
 	 * Mostrar la imagen por Http
 	 * para que spring no trunque o borre la extension del archivo usa la expresion regular ":.+"
 	 * @param filename nombre del archivo
-	 * @return
+	 * @return en la respuesta regresamos la imagen
 	 */
 	
 	@SuppressWarnings("null")
@@ -59,7 +62,7 @@ public class ClienteController {
 	//de lo contario solo pasaria el nombre "imagen" y no "imagen.jpg"
 	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
 		//dir raiz "uploads" con ruta absoluta C:
-		Path pathFoto = Paths.get("uploads").resolve(filename).toAbsolutePath();
+		Path pathFoto = Paths.get(UPLOADS_FOLDER).resolve(filename).toAbsolutePath();
 		//ver la dir en consola
 		log.info("pathFoto: " + pathFoto);
 		Resource recurso = null;
@@ -141,12 +144,12 @@ public class ClienteController {
 	}
 
 	/**
-	 * Editar info del cliente
+	 * Muestra el formulario con el mensaje "Editar cliente" y diferenciarlo de "Crear"
 	 * 
 	 * @param id    Id del cliente a editar
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @param flash para enviar mensajes de confirmacion
-	 * @return
+	 * @return te muetra el form.html
 	 */
 	@RequestMapping(value = "/form/{id}")
 	public String editar(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
@@ -168,7 +171,7 @@ public class ClienteController {
 	}
 
 	/**
-	 * Guardar la informacion del cliente a crear
+	 * Guardar la informacion del cliente a crear o editar
 	 * 
 	 * @param cliente entidad cliente con sus atributos y validar algun error
 	 * @param result  debe ir junto al parametro a validar
@@ -188,11 +191,27 @@ public class ClienteController {
 		}
 
 		if (!foto.isEmpty()) {
+			//eliminar la imagen cuando un usuario se esta editando y se reemplaza la img con la nueva
+			//validar que sea un usuario valido y que si tenga foto
+			if (cliente.getId() != null
+					&& cliente.getId() > 0
+					&& cliente.getFoto() != null
+					&& cliente.getFoto().length() > 0 ) {
+				// validar la integridad del archivo img
+				Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto()).toAbsolutePath();
+				//convertirlo en archivo
+				File archivo = rootPath.toFile();
+				
+				if (archivo.exists() && archivo.canRead()) {
+					//eliminar archivo
+					archivo.delete();
+				}
+			}
 			// para evitar que las img con mismo nombre se reemplazen
 			// Universaly unic identifier
 			String uniqueFilename = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
 			// imagenes guardadas fuera del proyecto
-			Path rootPath = Paths.get("uploads").resolve(uniqueFilename);
+			Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(uniqueFilename);
 			Path rootAbsolutPath = rootPath.toAbsolutePath();
 			log.info("rootPath: " + rootPath); // path relativo al proyecto (se muestra en consola)
 			log.info("rootAbsolutePath: " + rootAbsolutPath); // path absoluto (se muestra en consola)
@@ -217,7 +236,7 @@ public class ClienteController {
 	}
 
 	/**
-	 * 
+	 * Elimina el registro del cliente junto con su imagen
 	 * @param id    Id del cliente a eliminar
 	 * @param flash enviar mensajes de confirmacion
 	 * @return redirect to listar.html
@@ -226,8 +245,21 @@ public class ClienteController {
 	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
 
 		if (id > 0) {
+			Cliente cliente = clienteService.findOne(id);
+			
 			clienteService.delete(id);
 			flash.addFlashAttribute("success", "Cliente eliminado con exito");
+			//obtener la ruta
+			Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto()).toAbsolutePath();
+			//convertirlo en archivo
+			File archivo = rootPath.toFile();
+			
+			if (archivo.exists() && archivo.canRead()) {
+				//si se puede eliminar
+				if(archivo.delete()) {
+					flash.addFlashAttribute("info", "Foto: " + cliente.getFoto() + " eliminada con exito!");
+				}
+			}
 		}
 		return "redirect:/listar";
 	}
