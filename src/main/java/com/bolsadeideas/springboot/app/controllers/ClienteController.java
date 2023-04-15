@@ -1,20 +1,11 @@
 package com.bolsadeideas.springboot.app.controllers;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
-import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,9 +22,9 @@ import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
 import com.bolsadeideas.springboot.app.models.entity.Cliente;
 import com.bolsadeideas.springboot.app.models.service.IClienteService;
+import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 
 import jakarta.validation.Valid;
@@ -45,42 +36,34 @@ public class ClienteController {
 
 	@Autowired // siempre se inyecta la interfaz para hacerlo generico
 	private IClienteService clienteService;
-	// mostar en la consola y hacer un debug de los nombres del dir
-	private final Logger log = LoggerFactory.getLogger(getClass());
-	
-	private final static String UPLOADS_FOLDER ="uploads";
+	@Autowired
+	private IUploadFileService uploadFileService;
 
 	/**
-	 * Mostrar la imagen por Http
-	 * para que spring no trunque o borre la extension del archivo usa la expresion regular ":.+"
+	 * Mostrar la imagen por Http para que spring no trunque o borre la extension
+	 * del archivo usa la expresion regular ":.+"
+	 * 
 	 * @param filename nombre del archivo
 	 * @return en la respuesta regresamos la imagen
 	 */
-	
+
 	@SuppressWarnings("null")
 	@GetMapping(value = "/uploads/{filename:.+}")
-	//de lo contario solo pasaria el nombre "imagen" y no "imagen.jpg"
+	// de lo contario solo pasaria el nombre "imagen" y no "imagen.jpg"
 	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
-		//dir raiz "uploads" con ruta absoluta C:
-		Path pathFoto = Paths.get(UPLOADS_FOLDER).resolve(filename).toAbsolutePath();
-		//ver la dir en consola
-		log.info("pathFoto: " + pathFoto);
+
 		Resource recurso = null;
 		try {
-			recurso = new UrlResource(pathFoto.toUri());// (agregar el file:) aqui se carga la imagen
-			// si no existe y no es leible
-			if (!recurso.exists() || !recurso.isReadable()) {
-				throw new RuntimeException("Error: no se puede cargar la imagen: " + pathFoto.toString());
-			}
-		} catch (MalformedURLException e) { //posibilidad de que este mal formada la URL
+			recurso = uploadFileService.load(filename);
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		return //juntar la imagen y la respuesta
-				ResponseEntity.ok()
-				.header(HttpHeaders.CONTENT_DISPOSITION,
-				"attachment; filename=\"" + recurso.getFilename() + "\"")
-				.body(recurso); //se anexa el recurso al body
+
+		return // juntar la imagen y la respuesta
+		ResponseEntity.ok()
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + recurso.getFilename() + "\"")
+				.body(recurso); // se anexa el recurso al body
 
 	}
 
@@ -144,7 +127,8 @@ public class ClienteController {
 	}
 
 	/**
-	 * Muestra el formulario con el mensaje "Editar cliente" y diferenciarlo de "Crear"
+	 * Muestra el formulario con el mensaje "Editar cliente" y diferenciarlo de
+	 * "Crear"
 	 * 
 	 * @param id    Id del cliente a editar
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
@@ -191,40 +175,24 @@ public class ClienteController {
 		}
 
 		if (!foto.isEmpty()) {
-			//eliminar la imagen cuando un usuario se esta editando y se reemplaza la img con la nueva
-			//validar que sea un usuario valido y que si tenga foto
-			if (cliente.getId() != null
-					&& cliente.getId() > 0
-					&& cliente.getFoto() != null
-					&& cliente.getFoto().length() > 0 ) {
-				// validar la integridad del archivo img
-				Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto()).toAbsolutePath();
-				//convertirlo en archivo
-				File archivo = rootPath.toFile();
-				
-				if (archivo.exists() && archivo.canRead()) {
-					//eliminar archivo
-					archivo.delete();
-				}
+			// eliminar la imagen cuando un usuario se esta editando y se reemplaza la img
+			// con la nueva
+			// validar que sea un usuario valido y que si tenga foto
+			if (cliente.getId() != null && cliente.getId() > 0 && cliente.getFoto() != null
+					&& cliente.getFoto().length() > 0) {
+
+				uploadFileService.delete(cliente.getFoto());
+
 			}
-			// para evitar que las img con mismo nombre se reemplazen
-			// Universaly unic identifier
-			String uniqueFilename = UUID.randomUUID().toString() + "_" + foto.getOriginalFilename();
-			// imagenes guardadas fuera del proyecto
-			Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(uniqueFilename);
-			Path rootAbsolutPath = rootPath.toAbsolutePath();
-			log.info("rootPath: " + rootPath); // path relativo al proyecto (se muestra en consola)
-			log.info("rootAbsolutePath: " + rootAbsolutPath); // path absoluto (se muestra en consola)
-
+			String uniqueFilename = null;
 			try {
-				// copiar la img a subir a uploads
-				Files.copy(foto.getInputStream(), rootAbsolutPath);
-				flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
-				cliente.setFoto(uniqueFilename);
-
+				uniqueFilename = uploadFileService.copy(foto);
 			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			flash.addFlashAttribute("info", "Has subido correctamente '" + uniqueFilename + "'");
+			cliente.setFoto(uniqueFilename);
 
 		}
 
@@ -237,6 +205,7 @@ public class ClienteController {
 
 	/**
 	 * Elimina el registro del cliente junto con su imagen
+	 * 
 	 * @param id    Id del cliente a eliminar
 	 * @param flash enviar mensajes de confirmacion
 	 * @return redirect to listar.html
@@ -246,21 +215,16 @@ public class ClienteController {
 
 		if (id > 0) {
 			Cliente cliente = clienteService.findOne(id);
-			
+
 			clienteService.delete(id);
 			flash.addFlashAttribute("success", "Cliente eliminado con exito");
-			//obtener la ruta
-			Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto()).toAbsolutePath();
-			//convertirlo en archivo
-			File archivo = rootPath.toFile();
-			
-			if (archivo.exists() && archivo.canRead()) {
-				//si se puede eliminar
-				if(archivo.delete()) {
-					flash.addFlashAttribute("info", "Foto: " + cliente.getFoto() + " eliminada con exito!");
-				}
+
+			// si se puede eliminar
+			if (uploadFileService.delete(cliente.getFoto())) {
+				flash.addFlashAttribute("info", "Foto: " + cliente.getFoto() + " eliminada con exito!");
 			}
 		}
+
 		return "redirect:/listar";
 	}
 
