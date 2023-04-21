@@ -10,6 +10,14 @@
         <div class="card-body">
           <!-- la carpeta static ya esta incluida por defecto , alt es una descripcion
 				si la cadena tiene longitud mayor a cero entonces existe la img y se muestra-->
+
+          <h4 class="card-title">
+            <a
+              class="btn btn-primary btn-xs"
+              th:href="@{'/factura/form/' +${cliente.id}}"
+              th:text="'crear factura'"
+            ></a>
+          </h4>
           <img
             th:if="${#strings.length(cliente.foto) > 0}"
             class="img-thumbnail rounded float-left"
