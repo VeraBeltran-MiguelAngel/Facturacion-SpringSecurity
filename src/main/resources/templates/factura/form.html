@@ -37,6 +37,7 @@
 
             <div class="form-group row">
               <label
+                for="descripcion"
                 class="col-sm-2 col-form-label"
                 th:text="'Descripción'"
               ></label>
@@ -52,6 +53,7 @@
 
             <div class="form-group row">
               <label
+                for="observacion"
                 class="col-sm-2 col-form-label"
                 th:text="'Observación'"
               ></label>
@@ -61,6 +63,23 @@
                   th:field="*{observacion}"
                   class="form-control"
                 ></textarea>
+              </div>
+            </div>
+
+            <div class="form-group row">
+              <label
+                for="buscar_producto"
+                class="col-sm-2 col-form-label"
+                th:text="'Buscar producto'"
+              ></label>
+
+              <div class="col-sm-6">
+                <input
+                  type="text"
+                  name="buscar_producto"
+                  id="buscar_producto"
+                  class="form-control"
+                />
               </div>
             </div>
 
@@ -79,5 +98,6 @@
     </div>
 
     <footer th:replace="layout/layout :: footer"></footer>
+    <script th:replace="factura/js/autocomplete-productos :: javascript"></script>
   </body>
 </html>
