@@ -40,7 +40,7 @@ public class Cliente implements Serializable {
 
 	@NotNull
 	@Column(name = "create_at")
-	// solo guarda fecha sin horas ni minutos
+	// *solo guarda fecha sin horas ni minutos
 	@Temporal(TemporalType.DATE) // solo para fechas(indica el formato de la fecha que se va a guardar en la BD)
 	@DateTimeFormat(pattern="yyyy-MM-dd")
 	private Date createAt;
