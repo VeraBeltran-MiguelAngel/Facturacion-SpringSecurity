@@ -49,8 +49,17 @@
           select: function (event, ui) {
             /*El metodo select nos permite realizar cualquier tipo de tarea una vez que seleccionamos 
             un elemento del autocomplete*/
-            $("#buscar_producto").val(ui.item.label);
+           // $("#buscar_producto").val(ui.item.label);
             // pasar el nombre del producto(item seleccionado) y lo pasamos al campo'buscar_producto'
+
+            var linea= $("#plantillaItemsFactura").html(); //obtenemos el contendio html del elemento
+            //reemplazar el parametro ID por el valor ID
+            linea = linea.replace(/{ID}/g, ui.item.value);
+            linea = linea.replace(/{NOMBRE}/g, ui.item.label);
+            linea = linea.replace(/{PRECIO}/g, ui.item.precio);
+            //agregar la linea a la tabla
+            $("#cargarItemProductos tbody").append(linea);
+            $('input[name="buscar_producto"]').val("");
             return false;
           },
         });
