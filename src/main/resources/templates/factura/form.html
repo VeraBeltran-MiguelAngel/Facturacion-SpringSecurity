@@ -84,7 +84,7 @@
             </div>
 
             <table th:replace="factura/plantilla-items :: itemsFactura"></table>
-
+            <!--los parametros de la pantilla se insertan en la tabla sig.-->
             <table
               id="cargarItemProductos"
               class="table table-sm table-striped table-hover"
@@ -94,9 +94,11 @@
                   <th>Nombre</th>
                   <th>Precio</th>
                   <th>Cantidad</th>
+                  <th>Total</th>
                 </tr>
               </thead>
               <tbody>
+                <!--aqui se crean las lineas de la factura-->
               </tbody>
             </table>
 

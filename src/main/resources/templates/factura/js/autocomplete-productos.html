@@ -52,18 +52,29 @@
            // $("#buscar_producto").val(ui.item.label);
             // pasar el nombre del producto(item seleccionado) y lo pasamos al campo'buscar_producto'
 
+            //tbody de 'plantilla-items.html'
             var linea= $("#plantillaItemsFactura").html(); //obtenemos el contendio html del elemento
-            //reemplazar el parametro ID por el valor ID
+            //reemplazar los parametros con los valores del map 'linea 29'
             linea = linea.replace(/{ID}/g, ui.item.value);
             linea = linea.replace(/{NOMBRE}/g, ui.item.label);
             linea = linea.replace(/{PRECIO}/g, ui.item.precio);
             //agregar la linea a la tabla
             $("#cargarItemProductos tbody").append(linea);
+            //dejar en blanco el campo buscar 
             $('input[name="buscar_producto"]').val("");
+            itemsHelper.calcularImporte(ui.item.value, ui.item.precio, 1);
+
             return false;
-          },
+          }
         });
       });
+
+      /*Funcion para calcular el importe*/
+      var itemsHelper={
+        calcularImporte: function(id,precio,cantidad){
+          $("#total_importe_"+id).html(parseInt(precio) * parseInt(cantidad));
+        }
+      }
     </script>
   </body>
 </html>

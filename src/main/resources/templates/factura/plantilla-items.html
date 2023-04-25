@@ -1,24 +1,32 @@
 <!DOCTYPE html>
 <html xmlns="http://www.thymeleaf.org">
   <body>
-    <!--plantilla oculta-->
+    <!--plantilla oculta (display-none)-->
     <table th:fragment="itemsFactura" class="d-none">
       <tbody id="plantillaItemsFactura">
+        <!--parametro  llamado 'row' y se concatena el ID, se reemplaza con el valor real del producto,
+        con jQuery se puede eliminar la linea-->
         <tr id="row_{ID}">
           <td class="d-none">
+            <!--arreglo de ID , una factura puede tener varia lineas-->
             <input type="hidden" value="{ID}" name="item_id[]" />
           </td>
+          <!--parametros que se reemplazan en el "select" de
+          'autocomplete-productos.html'-->
           <td>{NOMBRE}</td>
           <td>{PRECIO}</td>
           <td>
+            <!--al hacer cambio en la cantidad  calculamos el importe con el valor que va tomando el input-->
             <input
               type="number"
               value="1"
               name="cantidad[]"
               id="cantidad_{ID}"
               class="form-control col-sm-4"
+              onchange="itemsHelper.calcularImporte({ID}, {PRECIO}, this.value);"
             />
           </td>
+          <td><span id="total_importe_{ID}">0</span></td>
         </tr>
       </tbody>
     </table>
