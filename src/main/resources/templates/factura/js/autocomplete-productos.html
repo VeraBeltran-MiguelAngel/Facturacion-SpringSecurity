@@ -13,12 +13,12 @@
         $("#buscar_producto").autocomplete({
           //hacemos referecnia al campo del form.html con metodo autocomplete(recibe un objeto con dos metodos)
           source: function (request, response) {
-            //metodo 1:source se encarga de hacer la peticion del los datos con ajax 
+            //metodo 1:source se encarga de hacer la peticion del los datos con ajax
             $.ajax({
               /*pasamos un objeto con todos los parametros y la implementacion del metodo success para manejar 
               la respuesta.
               Atributos: url, tipo de dato:json*/
-              url: "/factura/cargar-productos/" + request.term, 
+              url: "/factura/cargar-productos/" + request.term,
               /*aqui va a el controlador para retornar los prd. encontrados, le pasamos un param a la ruta
               (contiene el texto del input'buscar_producto'(form.html)) y se guarda en 'term'*/
               dataType: "json",
@@ -49,32 +49,64 @@
           select: function (event, ui) {
             /*El metodo select nos permite realizar cualquier tipo de tarea una vez que seleccionamos 
             un elemento del autocomplete*/
-           // $("#buscar_producto").val(ui.item.label);
+            // $("#buscar_producto").val(ui.item.label);
             // pasar el nombre del producto(item seleccionado) y lo pasamos al campo'buscar_producto'
 
+            //antes de crear la linea preguntamos si el producto existe(id)
+            if (itemsHelper.hasProducto(ui.item.value)) {
+              //si eiste el producto incrementamos cantidad 
+              itemsHelper.incrementaCantidad(ui.item.value, ui.item.precio);
+              return false;
+            }
             //tbody de 'plantilla-items.html'
-            var linea= $("#plantillaItemsFactura").html(); //obtenemos el contendio html del elemento
+            var linea = $("#plantillaItemsFactura").html(); //obtenemos el contendio html del elemento
             //reemplazar los parametros con los valores del map 'linea 29'
             linea = linea.replace(/{ID}/g, ui.item.value);
             linea = linea.replace(/{NOMBRE}/g, ui.item.label);
             linea = linea.replace(/{PRECIO}/g, ui.item.precio);
             //agregar la linea a la tabla
             $("#cargarItemProductos tbody").append(linea);
-            //dejar en blanco el campo buscar 
-            $('input[name="buscar_producto"]').val("");
             itemsHelper.calcularImporte(ui.item.value, ui.item.precio, 1);
+            //dejar en blanco el campo buscar
+            $('input[name="buscar_producto"]').val("");
 
             return false;
-          }
+          },
         });
       });
 
       /*Funcion para calcular el importe*/
-      var itemsHelper={
-        calcularImporte: function(id,precio,cantidad){
-          $("#total_importe_"+id).html(parseInt(precio) * parseInt(cantidad));
-        }
-      }
+      var itemsHelper = {
+        calcularImporte: function (id, precio, cantidad) {
+          $("#total_importe_" + id).html(parseInt(precio) * parseInt(cantidad));
+        },
+        //para evitar lineas repetidas al seleccionar un mismo producto y que solo aumenta la cantidad
+        hasProducto: function (id) {
+          //esta funcion se encarga de buscar linea por linea en el detalle de la factura si existe el id del producto
+          var resultado = false;
+          //recorremos el input de plantilla-items.html
+          $('input[name="item_id[]"]').each(function () {
+            //si el id es igual al valor del input actual
+            if (parseInt(id) == parseInt($(this).val())) {
+              resultado = true;
+            }
+          });
+          return resultado;
+        },
+        //aqui incrementamos la cantidad de la linea existente 
+        incrementaCantidad: function (id, precio) {
+          //validar si la cantidad contiene un valor numerico convertimos a integer de lo contrario retornamos un 0
+          var cantidad = $("#cantidad_" + id).val()
+            ? parseInt($("#cantidad_" + id).val())
+            : 0;
+          // incrementamos la cantidad y se la pasamos al input'plantilla-items.html'
+          $("#cantidad_" + id).val(++cantidad);
+          //y volvemos a calcular el total
+          this.calcularImporte(id, precio, cantidad);
+          //limpiamos el campo buscar producto
+          $('input[name="buscar_producto"]').val("");
+        },
+      };
     </script>
   </body>
 </html>
