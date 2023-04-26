@@ -117,8 +117,10 @@
           var total = 0;
           //expresion regular (^ 	Sirve para hacer match al principio del string)
           $('span[id^="total_importe_"]').each(function(){
+            //recorremos los id de los productos
             total += parseInt($(this).html());
           });
+          //mostramos el resultado en el span de form.html
           $('#gran_total').html(total);
         }
       };
