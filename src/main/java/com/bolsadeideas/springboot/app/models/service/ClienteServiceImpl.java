@@ -47,7 +47,8 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	/**
-	 * Metodo para buscar un cliente por ID
+	 * *Metodo para buscar un cliente por ID, al trabajar con optional
+	 * *necesitamos el orElse
 	 */
 	@Override
 	@Transactional(readOnly = true)
@@ -83,10 +84,21 @@ public class ClienteServiceImpl implements IClienteService {
 
 	}
 
+	/**
+	 * Meotodo para guardar una factura
+	 */
 	@Override
 	@Transactional
 	public void saveFactura(Factura factura) {
 		facturaDao.save(factura);
+	}
+	/**
+ 	*  Metodo para encontrar un producto por ID 
+ 	*/
+	@Override
+	@Transactional(readOnly = true)
+	public Producto findProductoById(Long id) {
+		return productoDao.findById(id).orElse(null);
 	}
 
 }
