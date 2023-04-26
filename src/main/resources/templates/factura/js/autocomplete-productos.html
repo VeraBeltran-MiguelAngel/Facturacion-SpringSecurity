@@ -79,6 +79,7 @@
       var itemsHelper = {
         calcularImporte: function (id, precio, cantidad) {
           $("#total_importe_" + id).html(parseInt(precio) * parseInt(cantidad));
+          this.calcularGranTotal();
         },
         //para evitar lineas repetidas al seleccionar un mismo producto y que solo aumenta la cantidad
         hasProducto: function (id) {
@@ -106,6 +107,20 @@
           //limpiamos el campo buscar producto
           $('input[name="buscar_producto"]').val("");
         },
+        //eliminamos un linea del detalle factura
+        eliminarLineaFactura: function (id) {
+          $('#row_' + id).remove();
+          this.calcularGranTotal();
+        },
+        //sumar todos los totales 
+        calcularGranTotal: function(){
+          var total = 0;
+          //expresion regular (^ 	Sirve para hacer match al principio del string)
+          $('span[id^="total_importe_"]').each(function(){
+            total += parseInt($(this).html());
+          });
+          $('#gran_total').html(total);
+        }
       };
     </script>
   </body>
