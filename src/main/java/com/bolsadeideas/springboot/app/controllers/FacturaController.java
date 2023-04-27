@@ -7,6 +7,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,6 +24,8 @@ import com.bolsadeideas.springboot.app.models.entity.Factura;
 import com.bolsadeideas.springboot.app.models.entity.ItemFactura;
 import com.bolsadeideas.springboot.app.models.entity.Producto;
 import com.bolsadeideas.springboot.app.models.service.IClienteService;
+
+import jakarta.validation.Valid;
 
 @Controller
 @RequestMapping("/factura")
@@ -79,39 +83,58 @@ public class FacturaController {
 	 * Metodo para guardar una factura, se obtienen los datos de 'plantilla.html'
 	 * y se van recorriendo los input
 	 * 
-	 * @param factura  objeto factura mapeado al formulario
+	 * @param factura  habilitamos la validacion en el objeto factura mapeado al
+	 *                 formulario
+	 * @param result   nos permite comprobar si hubieron errores en la validacion de
+	 *                 la factura
+	 * @param model    Para pasar datos a la vista 
 	 * @param itemId   arreglo que hace referencia al name del input "item_id[]"
 	 * @param cantidad arreglo que hace referencia al name del input "cantidad[]"
 	 * @param flash    para enviar mensajes a la vista
 	 * @param status   finalizar el session attribute
-	 * @return  nos dirige a la vista ver.html/ID del cliente
+	 * @return nos dirige a la vista ver.html/ID del cliente
 	 */
 	@PostMapping("/form")
-	public String guardar(Factura factura,
+	public String guardar(@Valid Factura factura,
+			BindingResult result,
+			Model model,
 			@RequestParam(name = "item_id[]", required = false) Long[] itemId,
 			@RequestParam(name = "cantidad[]", required = false) Integer[] cantidad,
 			RedirectAttributes flash,
 			SessionStatus status) {
+
+				if (result.hasErrors()) {
+					model.addAttribute("titulo", "Crear Factura");
+					return "factura/form";
+				}
+
+				if (itemId == null || itemId.length == 0) {
+					model.addAttribute("titulo", "Crear Factura");
+					model.addAttribute("error", "Error: La factura DEBE tener lineas!");
+					return "factura/form";
+				}
 		// recorremos los iD
 		for (int i = 0; i < itemId.length; i++) {
-			/*  por cada linea de la factura obtenemos el producto, pasamos el ID atraves del
-			 arreglo */
+			/*
+			 * por cada linea de la factura obtenemos el producto, pasamos el ID atraves del
+			 * arreglo
+			 */
 			Producto producto = clienteService.findProductoById(itemId[i]);
 			// creamos una instancia de ItemFactura y les pasamos la cantidad y el producto
 			ItemFactura linea = new ItemFactura();
 			linea.setCantidad(cantidad[i]);
 			linea.setProducto(producto);
-			//agregamos la linea a la actura
+			// agregamos la linea a la actura
 			factura.addItemFactura(linea);
 
-			//Debug mostramos los valores de ID y Cantidad en consola 
+			// Debug mostramos los valores de ID y Cantidad en consola
 			log.info("ID: " + itemId[i].toString() + ", cantidad: " + cantidad[i].toString());
 		}
-		//guardar factura en la base de datos 
+		// guardar factura en la base de datos
 		clienteService.saveFactura(factura);
-		// finalizar el session attribute y eliminar la factura de la sesion 
+		// finalizar el session attribute y eliminar la factura de la sesion
 		status.setComplete();
-		//enviamos mensaje a la vista
+		// enviamos mensaje a la vista
 		flash.addFlashAttribute("success", "Factura creada con éxito!");
 
 		return "redirect:/ver/" + factura.getCliente().getId();
