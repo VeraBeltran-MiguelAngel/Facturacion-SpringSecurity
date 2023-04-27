@@ -54,7 +54,7 @@
 
             //antes de crear la linea preguntamos si el producto existe(id)
             if (itemsHelper.hasProducto(ui.item.value)) {
-              //si eiste el producto incrementamos cantidad 
+              //si eiste el producto incrementamos cantidad
               itemsHelper.incrementaCantidad(ui.item.value, ui.item.precio);
               return false;
             }
@@ -72,6 +72,13 @@
 
             return false;
           },
+        });
+        /*Al hacer submit en el formulario  se necesita eliminar el tbody  plantillaItemsFactura 
+        si no se elimina va a tomar el input de la plantilla como si fuera una linea mas y va a lanzar un error
+        por que el item ID contiene un valor string "{ID}"*/
+        $("form").submit(function () {
+          $("#plantillaItemsFactura").remove();
+          return;
         });
       });
 
@@ -94,9 +101,10 @@
           });
           return resultado;
         },
-        //aqui incrementamos la cantidad de la linea existente 
+        //aqui incrementamos la cantidad de la linea existente
         incrementaCantidad: function (id, precio) {
-          //validar si la cantidad contiene un valor numerico convertimos a integer de lo contrario retornamos un 0
+          /*validar si la cantidad contiene un valor numerico (ya que puede tomar el valor string "cantidad[]")
+          convertimos a integer de lo contrario retornamos un 0*/
           var cantidad = $("#cantidad_" + id).val()
             ? parseInt($("#cantidad_" + id).val())
             : 0;
@@ -109,20 +117,20 @@
         },
         //eliminamos un linea del detalle factura
         eliminarLineaFactura: function (id) {
-          $('#row_' + id).remove();
+          $("#row_" + id).remove();
           this.calcularGranTotal();
         },
-        //sumar todos los totales 
-        calcularGranTotal: function(){
+        //sumar todos los totales
+        calcularGranTotal: function () {
           var total = 0;
           //expresion regular (^ 	Sirve para hacer match al principio del string)
-          $('span[id^="total_importe_"]').each(function(){
+          $('span[id^="total_importe_"]').each(function () {
             //recorremos los id de los productos
             total += parseInt($(this).html());
           });
           //mostramos el resultado en el span de form.html
-          $('#gran_total').html(total);
-        }
+          $("#gran_total").html(total);
+        },
       };
     </script>
   </body>
