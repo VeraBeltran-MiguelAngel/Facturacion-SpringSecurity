@@ -37,6 +37,23 @@ public class FacturaController {
 	// *Para hacer un debug y mostrar valores en consola
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	@GetMapping("/ver/{id}")
+	public String ver(@PathVariable(value = "id") Long id,
+			Model model,
+			RedirectAttributes flash) {
+
+		Factura factura = clienteService.findFacturaById(id);
+
+		if (factura == null) {
+			flash.addAttribute("error", "La factura no existe en la base de datos!");
+			return "redirect:/listar";
+		}
+
+		model.addAttribute("factura", factura);
+		model.addAttribute("titulo", "Factura: ".concat(factura.getDescripcion()));
+		return "factura/ver";
+	}
+
 	/**
 	 * Metodo para crear una factura
 	 * 
@@ -87,7 +104,7 @@ public class FacturaController {
 	 *                 formulario
 	 * @param result   nos permite comprobar si hubieron errores en la validacion de
 	 *                 la factura
-	 * @param model    Para pasar datos a la vista 
+	 * @param model    Para pasar datos a la vista
 	 * @param itemId   arreglo que hace referencia al name del input "item_id[]"
 	 * @param cantidad arreglo que hace referencia al name del input "cantidad[]"
 	 * @param flash    para enviar mensajes a la vista
@@ -103,16 +120,16 @@ public class FacturaController {
 			RedirectAttributes flash,
 			SessionStatus status) {
 
-				if (result.hasErrors()) {
-					model.addAttribute("titulo", "Crear Factura");
-					return "factura/form";
-				}
+		if (result.hasErrors()) {
+			model.addAttribute("titulo", "Crear Factura");
+			return "factura/form";
+		}
 
-				if (itemId == null || itemId.length == 0) {
-					model.addAttribute("titulo", "Crear Factura");
-					model.addAttribute("error", "Error: La factura DEBE tener lineas!");
-					return "factura/form";
-				}
+		if (itemId == null || itemId.length == 0) {
+			model.addAttribute("titulo", "Crear Factura");
+			model.addAttribute("error", "Error: La factura DEBE tener lineas!");
+			return "factura/form";
+		}
 		// recorremos los iD
 		for (int i = 0; i < itemId.length; i++) {
 			/*

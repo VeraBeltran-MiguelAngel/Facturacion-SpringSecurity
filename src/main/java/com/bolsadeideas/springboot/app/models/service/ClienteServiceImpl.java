@@ -101,4 +101,13 @@ public class ClienteServiceImpl implements IClienteService {
 		return productoDao.findById(id).orElse(null);
 	}
 
+	/**
+ 	* Metodo para encontrar un factura por su id
+ 	*/
+	@Override
+	@Transactional(readOnly = true)
+	public Factura findFacturaById(Long id) {
+		return facturaDao.findById(id).orElse(null);
+	}
+
 }

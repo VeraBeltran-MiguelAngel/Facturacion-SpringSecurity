@@ -13,11 +13,19 @@ public interface IClienteService {
 	public List<Cliente> findAll();
 	// *subconjunto con la cantiad de elementos o registros de la pagina actual
 	public Page<Cliente> findAll(Pageable pageable);
+
 	public void save(Cliente cliente);
+
 	public Cliente findOne(Long id);
+
 	public void delete(Long id);
+
 	public List<Producto> findByNombre(String term);
+
 	public void saveFactura(Factura factura);
+
 	public Producto findProductoById(Long id);
+
+	public Factura findFacturaById(Long id);
 
 }
