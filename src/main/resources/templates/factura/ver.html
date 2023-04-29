@@ -12,7 +12,7 @@
           <h4 class="card-title">
             <a
               th:href="@{'/ver/' + ${factura.cliente.id}}"
-              class="btn btn-light btn-xs"
+              class="btn btn-primary btn-xs"
               >&laquo; volver
             </a>
           </h4>
@@ -82,6 +82,29 @@
               class="badge badge-secondary"
             ></span>
           </h5>
+          <!--Observaciones-->
+          <div class="card border-info mb-4" style="max-width: 20rem">
+            <div class="card-header">Observaciones</div>
+            <div class="card-body">
+              <!--Cuando no es vacia la observacion mostramos este parrafo-->
+              <p
+                class="card-text"
+                th:text="${factura.observacion}"
+                th:if="${not #strings.isEmpty(factura.observacion)}"
+              ></p>
+              <h4
+                class="card-title"
+                th:if="${#strings.isEmpty(factura.observacion)}"
+                th:text="'No tiene observaciones'"
+              ></h4>
+            </div>
+          </div>
+          <!--Boton volver-->
+          <a
+            th:href="@{'/ver/' + ${factura.cliente.id}}"
+            class="btn btn-primary btn-xs"
+            >&laquo; volver
+          </a>
         </div>
       </div>
     </div>
