@@ -129,6 +129,13 @@ public class Cliente implements Serializable {
 		facturas.add(factura);
 	}
 
+	/**
+	 * Metodo para imprimir el nombre y el apellido 
+	 */
+	@Override
+	public String toString() {
+		return nombre + " " + apellido;
+	}
 	private static final long serialVersionUID = 1L;
 
 }

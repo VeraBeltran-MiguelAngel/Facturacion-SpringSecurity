@@ -37,6 +37,14 @@ public class FacturaController {
 	// *Para hacer un debug y mostrar valores en consola
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
+	/**
+	 * Metodo para ver un factura
+	 * 
+	 * @param id    Se refiere al ID de la factura
+	 * @param model para enviar los datos a la vista
+	 * @param flash para enviar mensajes de confirmacion
+	 * @return nos dirige a la vista factura/ver.html
+	 */
 	@GetMapping("/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id,
 			Model model,
@@ -48,7 +56,7 @@ public class FacturaController {
 			flash.addAttribute("error", "La factura no existe en la base de datos!");
 			return "redirect:/listar";
 		}
-
+		// si la factura existe mandamos el objeto y su descripcion
 		model.addAttribute("factura", factura);
 		model.addAttribute("titulo", "Factura: ".concat(factura.getDescripcion()));
 		return "factura/ver";
