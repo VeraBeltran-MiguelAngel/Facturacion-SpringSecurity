@@ -38,7 +38,7 @@ public class FacturaController {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 
 	/**
-	 * Metodo para ver un factura
+	 * Metodo para ver detalle de una factura
 	 * 
 	 * @param id    Se refiere al ID de la factura
 	 * @param model para enviar los datos a la vista
@@ -50,7 +50,7 @@ public class FacturaController {
 			Model model,
 			RedirectAttributes flash) {
 
-		Factura factura = clienteService.findFacturaById(id);
+		Factura factura = clienteService.fetchFacturaByIdWithClienteWithItemFacturaWithProducto(id); // clienteService.findFacturaById(id);
 
 		if (factura == null) {
 			flash.addAttribute("error", "La factura no existe en la base de datos!");
