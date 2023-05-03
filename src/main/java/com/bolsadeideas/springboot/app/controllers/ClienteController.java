@@ -78,7 +78,9 @@ public class ClienteController {
 	@GetMapping(value = "/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		// obtener el cliente por id
-		Cliente cliente = clienteService.findOne(id);
+		//Cliente cliente = clienteService.findOne(id);
+		//consulta optimizada  en vez de dos select tenemos un inner join cliente-factura
+		Cliente cliente = clienteService.fecthByIdWithFacturas(id);
 
 		if (cliente == null) {
 			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");

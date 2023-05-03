@@ -57,6 +57,15 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	/**
+	 * Metodo optimizado con JOIN 
+	 */
+	@Override
+	@Transactional(readOnly = true)
+	public Cliente fecthByIdWithFacturas(Long id) {
+		return clienteDao.fecthByIdWithFacturas(id);
+	}
+
+	/**
 	 * Metodo para eliminar un cliente
 	 */
 	@Override
@@ -92,9 +101,10 @@ public class ClienteServiceImpl implements IClienteService {
 	public void saveFactura(Factura factura) {
 		facturaDao.save(factura);
 	}
+
 	/**
- 	*  Metodo para encontrar un producto por ID 
- 	*/
+	 * Metodo para encontrar un producto por ID
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public Producto findProductoById(Long id) {
@@ -102,8 +112,8 @@ public class ClienteServiceImpl implements IClienteService {
 	}
 
 	/**
- 	* Metodo para encontrar un factura por su id
- 	*/
+	 * Metodo para encontrar un factura por su id
+	 */
 	@Override
 	@Transactional(readOnly = true)
 	public Factura findFacturaById(Long id) {
@@ -119,10 +129,15 @@ public class ClienteServiceImpl implements IClienteService {
 		facturaDao.deleteById(id);
 	}
 
+	/**
+	 * Meotodo que llama a la cosulta personalizada
+	 */
 	@Override
 	@Transactional
 	public Factura fetchFacturaByIdWithClienteWithItemFacturaWithProducto(Long id) {
+		// consulta personalizada en IFacturaDao
 		return facturaDao.fetchByIdWithClienteWithItemFacturaWithProducto(id);
 	}
+
 
 }
