@@ -98,7 +98,7 @@ public class ClienteController {
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @return devuelve el listar.html
 	 */
-	@RequestMapping(value = "/listar", method = RequestMethod.GET)
+	@RequestMapping(value = {"/listar","/"}, method = RequestMethod.GET)
 	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model) {
 		// mostrar 4 registros por página
 		Pageable pageRequest = PageRequest.of(page, 4);// se envia a pageRender
