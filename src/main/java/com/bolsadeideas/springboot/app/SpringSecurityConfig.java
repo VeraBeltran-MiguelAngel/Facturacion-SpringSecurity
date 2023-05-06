@@ -52,18 +52,23 @@ public class SpringSecurityConfig {
 
         http.csrf().disable().cors().and()
                 .authorizeHttpRequests()
+                //añadir las rutas publicas
                 .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar")
                 .permitAll()
+                //añadir rutas privadas
                 .requestMatchers("/ver/**").hasAnyRole("USER")
                 .requestMatchers("/uploads/**").hasAnyRole("USER")
                 .requestMatchers("/form/**").hasAnyRole("ADMIN")
-                .requestMatchers("/delete/**").hasAnyRole("ADMIN")
-                .requestMatchers("/invoice/**").hasAnyRole("ADMIN")
+                .requestMatchers("/eliminar/**").hasAnyRole("ADMIN")
+                .requestMatchers("/factura/**").hasAnyRole("ADMIN")
                 .anyRequest().authenticated()
-                .and().formLogin()
-                .permitAll()
-                .and().logout()
-                .permitAll();
+                //implementacion del formulario login
+                .and()
+                    //esta permitido para todos los usuarios, se envia al loginController
+                    .formLogin().loginPage("/login")
+                    .permitAll()
+                .and()
+                    .logout().permitAll();
 
         return http.build();
     }
