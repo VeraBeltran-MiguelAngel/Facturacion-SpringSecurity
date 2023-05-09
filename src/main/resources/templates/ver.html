@@ -1,5 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://thymeleaf.org">
+<html
+  xmlns:th="http://thymeleaf.org"
+  xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+>
   <head th:replace="layout/layout :: head"></head>
   <body>
     <header th:replace="layout/layout :: header"></header>
@@ -13,6 +16,7 @@
 
           <h4 class="card-title">
             <a
+              sec:authorize="hasRole('ROLE_ADMIN')"
               class="btn btn-primary btn-xs"
               th:href="@{'/factura/form/' +${cliente.id}}"
               th:text="'crear factura'"
@@ -51,8 +55,8 @@
                 <th>Descripcion</th>
                 <th>Fecha</th>
                 <th>Total</th>
-                <th>Ver</th>
-                <th>Eliminar</th>
+                <th sec:authorize="hasRole('ROLE_ADMIN')">Ver</th>
+                <th sec:authorize="hasRole('ROLE_ADMIN')">Eliminar</th>
               </tr>
             </thead>
             <tbody>
@@ -61,14 +65,14 @@
                 <td th:text="${factura.descripcion}"></td>
                 <td th:text="${factura.createAt}"></td>
                 <td th:text="${factura.total}"></td>
-                <td>
+                <td sec:authorize="hasRole('ROLE_ADMIN')">
                   <a
                     class="btn btn-primary btn-xs"
                     th:href="@{'/factura/ver/' + ${factura.id}}"
                     th:text="'Detalle'"
                   ></a>
                 </td>
-                <td>
+                <td sec:authorize="hasRole('ROLE_ADMIN')">
                   <a
                     class="btn btn-danger btn-xs"
                     th:href="@{'/factura/eliminar/' + ${factura.id}}"
