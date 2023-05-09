@@ -1,5 +1,6 @@
 package com.bolsadeideas.springboot.app;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -9,8 +10,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.bolsadeideas.springboot.app.auth.handler.LoginSuccessHandler;
+
 @Configuration
 public class SpringSecurityConfig {
+
+    @Autowired
+    private LoginSuccessHandler successHandler;
 
     @Bean
     public static BCryptPasswordEncoder passwordEncoder() {
@@ -65,7 +71,11 @@ public class SpringSecurityConfig {
                 //implementacion del formulario login
                 .and()
                     //esta permitido para todos los usuarios, se envia al loginController
-                    .formLogin().loginPage("/login")
+                    .formLogin()
+                    //mensaje de exito al iniciar sesion 
+                    .successHandler(successHandler)
+                    //mostramos nuestro login personalizado 
+                    .loginPage("/login")
                     .permitAll()
                 .and()
                     .logout().permitAll()

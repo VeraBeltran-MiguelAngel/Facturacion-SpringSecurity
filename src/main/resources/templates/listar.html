@@ -19,11 +19,13 @@
           <table class="table table-striped table-bordered">
             <thead class="thead-dark">
               <tr>
+                <!--solo muestra el recurso si el usuario tiene rol usuario-->
                 <th sec:authorize="hasRole('ROLE_USER')" >ID</th>
                 <th>Nombre</th>
                 <th>Apellido</th>
                 <th>Email</th>
                 <th>Fecha</th>
+                 <!--solo muestra el recurso si el usuario tiene rol admin-->
                 <th sec:authorize="hasRole('ROLE_ADMIN')">Crear factura</th>
                 <th sec:authorize="hasRole('ROLE_ADMIN')">Editar</th>
                 <th sec:authorize="hasRole('ROLE_ADMIN')">Eliminar</th>
