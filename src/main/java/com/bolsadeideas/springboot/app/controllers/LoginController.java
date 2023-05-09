@@ -14,6 +14,8 @@ public class LoginController {
     /**
      * Personalizar el login para no usar el default de spring security,
      * 
+     * @param error     para manejar un error de inicio de sesion
+     * @param logout    para madar el mensaje de cerrar sesion
      * @param model     se usa para enviar datos a la vista
      * @param principal contiene el usuario logueado, valida si el usuario ya ha
      *                  iniciado sesion, si es asi redirige a la pagina de inicio y
