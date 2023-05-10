@@ -18,6 +18,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestWrapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -35,6 +36,7 @@ import com.bolsadeideas.springboot.app.models.service.IClienteService;
 import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @Controller
@@ -112,7 +114,7 @@ public class ClienteController {
 	 */
 	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
 	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model,
-			Authentication authentication) {
+			Authentication authentication, HttpServletRequest request) {
 
 		if (authentication != null) {
 			logger.info("Hola usuario autenticado, tu username es:".concat(authentication.getName()));
@@ -125,11 +127,31 @@ public class ClienteController {
 					"Utilizando forma estatica SecurityContextHolder.getContext().getAuthentication(), Usuario:"
 							.concat(auth.getName()));
 		}
-
+		// 1 ° forma de checar rol
 		if (hasRole("ROLE_ADMIN")) {
 			logger.info("Hola ".concat(auth.getName()).concat(" tienes acceso!"));
 		} else {
 			logger.info("Hola ".concat(auth.getName()).concat(" NO tienes acceso!"));
+		}
+		// segundo froma de checar autorizacion de rol
+		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request,
+				"");
+
+		if (securityContext.isUserInRole("ROLE_ADMIN")) {
+			logger.info("Forma usando SecurityContextHolderAwareRequestWrapper: Hola ".concat(auth.getName())
+					.concat(" tienes acceso!"));
+		} else {
+			logger.info("Forma usando SecurityContextHolderAwareRequestWrapper: Hola ".concat(auth.getName())
+					.concat(" NO tienes acceso!"));
+		}
+		// 3° forma tambien se puede hacer usadon solo el request del HTTP
+
+		if (request.isUserInRole("ROLE_ADMIN")) {
+			logger.info("Forma usando HttpServletRequest: Hola ".concat(auth.getName())
+					.concat(" tienes acceso!"));
+		} else {
+			logger.info("Forma usando HttpServletRequest: Hola ".concat(auth.getName())
+					.concat(" NO tienes acceso!"));
 		}
 
 		// mostrar 4 registros por página
@@ -262,6 +284,12 @@ public class ClienteController {
 		return "redirect:/listar";
 	}
 
+	/**
+	 * Metodo para validar si x usuario tiene x rol
+	 * 
+	 * @param role
+	 * @return
+	 */
 	public boolean hasRole(String role) {
 		SecurityContext context = SecurityContextHolder.getContext();
 
