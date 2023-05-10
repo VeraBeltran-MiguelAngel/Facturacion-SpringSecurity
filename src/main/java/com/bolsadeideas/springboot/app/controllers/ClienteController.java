@@ -1,7 +1,10 @@
 package com.bolsadeideas.springboot.app.controllers;
 
 import java.io.IOException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import java.net.MalformedURLException;
+import java.util.Collection;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,11 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,9 +38,12 @@ import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 import jakarta.validation.Valid;
 
 @Controller
-//indicamos que se va a guardar el objeto cliente como atributo de la sesion y evitar perdida de datos entre la navegacion
+// indicamos que se va a guardar el objeto cliente como atributo de la sesion y
+// evitar perdida de datos entre la navegacion
 @SessionAttributes("cliente")
 public class ClienteController {
+	// para tener un log de inicios de sesion y verlos en consola
+	protected final Log logger = LogFactory.getLog(this.getClass());
 
 	@Autowired // siempre se inyecta la interfaz para hacerlo generico
 	private IClienteService clienteService;
@@ -78,8 +89,9 @@ public class ClienteController {
 	@GetMapping(value = "/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		// obtener el cliente por id
-		//Cliente cliente = clienteService.findOne(id);
-		//consulta optimizada  en vez de dos select tenemos un inner join cliente-factura
+		// Cliente cliente = clienteService.findOne(id);
+		// consulta optimizada en vez de dos select tenemos un inner join
+		// cliente-factura
 		Cliente cliente = clienteService.fecthByIdWithFacturas(id);
 
 		if (cliente == null) {
@@ -98,8 +110,28 @@ public class ClienteController {
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @return devuelve el listar.html
 	 */
-	@RequestMapping(value = {"/listar","/"}, method = RequestMethod.GET)
-	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model) {
+	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
+	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model,
+			Authentication authentication) {
+
+		if (authentication != null) {
+			logger.info("Hola usuario autenticado, tu username es:".concat(authentication.getName()));
+		}
+		// para validar autorizacion en el logger (consola)
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+		if (auth != null) {
+			logger.info(
+					"Utilizando forma estatica SecurityContextHolder.getContext().getAuthentication(), Usuario:"
+							.concat(auth.getName()));
+		}
+
+		if (hasRole("ROLE_ADMIN")) {
+			logger.info("Hola ".concat(auth.getName()).concat(" tienes acceso!"));
+		} else {
+			logger.info("Hola ".concat(auth.getName()).concat(" NO tienes acceso!"));
+		}
+
 		// mostrar 4 registros por página
 		Pageable pageRequest = PageRequest.of(page, 4);// se envia a pageRender
 		// lista paginada
@@ -228,6 +260,39 @@ public class ClienteController {
 		}
 
 		return "redirect:/listar";
+	}
+
+	public boolean hasRole(String role) {
+		SecurityContext context = SecurityContextHolder.getContext();
+
+		if (context == null) {
+			return false;
+		}
+
+		Authentication auth = context.getAuthentication();
+
+		if (auth == null) {
+			return false;
+		}
+		// cualquier objeto que implemente la interfaz grantedAuthority
+		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities();
+
+		// el metodo contains (grantedAuthority) retorna un booleano, si contiene o no
+		// el elemento en la coleccion
+		return authorities.contains(new SimpleGrantedAuthority(role));
+		/*
+		 * for (GrantedAuthority authority : authorities) {
+		 * if (role.equals(authority.getAuthority())) {
+		 * logger.info(
+		 * "Hola usuario ".concat(auth.getName())
+		 * .concat(" tu role es: ".concat(authority.getAuthority())));
+		 * return true;
+		 * }
+		 * 
+		 * }
+		 * return false;
+		 */
+
 	}
 
 }
