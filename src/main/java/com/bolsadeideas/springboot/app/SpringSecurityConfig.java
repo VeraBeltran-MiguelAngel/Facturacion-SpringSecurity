@@ -12,20 +12,18 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 import com.bolsadeideas.springboot.app.auth.handler.LoginSuccessHandler;
-
+// si no pones esta linea no puedes usar las anotaciones @Secured y @Preauthorize
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration
 public class SpringSecurityConfig {
 
-    @Autowired
+    @Autowired //mensaje de exito al iniciar sesion 
     private LoginSuccessHandler successHandler;
 
-    @Bean
-    public static BCryptPasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+    @Autowired //para encriptar contraseñas lo inyectasmos de MVCConfig
+    private BCryptPasswordEncoder passwordEncoder;
 
-    /**
+     /**
      * Configuracion de usuario, contraseña y roles
      * 
      * @return
@@ -37,12 +35,12 @@ public class SpringSecurityConfig {
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
         manager.createUser(User
                 .withUsername("coach")
-                .password(passwordEncoder().encode("user_pass"))
+                .password(passwordEncoder.encode("user_pass"))
                 .roles("USER")
                 .build());
         manager.createUser(User
                 .withUsername("admin")
-                .password(passwordEncoder().encode("admin_pass"))
+                .password(passwordEncoder.encode("admin_pass"))
                 .roles("ADMIN", "USER")
                 .build());
 
