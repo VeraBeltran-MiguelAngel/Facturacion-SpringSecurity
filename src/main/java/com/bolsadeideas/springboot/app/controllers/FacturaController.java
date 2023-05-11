@@ -6,6 +6,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -27,6 +28,8 @@ import com.bolsadeideas.springboot.app.models.service.IClienteService;
 
 import jakarta.validation.Valid;
 
+@Secured("ROLE_ADMIN") // si todos los metodos de la clase son de admin , se anota toda la clase con
+						// ese rol
 @Controller
 @RequestMapping("/factura")
 @SessionAttributes("factura")

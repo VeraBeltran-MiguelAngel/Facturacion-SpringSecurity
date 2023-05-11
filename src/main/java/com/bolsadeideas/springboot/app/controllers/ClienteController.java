@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -61,6 +63,7 @@ public class ClienteController {
 	 */
 
 	@SuppressWarnings("null")
+	@Secured("ROLE_USER")
 	@GetMapping(value = "/uploads/{filename:.+}")
 	// de lo contario solo pasaria el nombre "imagen" y no "imagen.jpg"
 	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
@@ -88,6 +91,7 @@ public class ClienteController {
 	 * @param flash para enviar mensajes de confirmacion
 	 * @return
 	 */
+	@PreAuthorize("hasRole('ROLE_USER')") // 2° forma usando el metodo hasRole(propio de spring security)
 	@GetMapping(value = "/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		// obtener el cliente por id
@@ -174,6 +178,7 @@ public class ClienteController {
 	 * @param model se usa para enviar datos a la vista ("ID","Data")
 	 * @return devuelve el form.html
 	 */
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form")
 	public String crear(Map<String, Object> model) {
 		Cliente cliente = new Cliente();
@@ -191,6 +196,7 @@ public class ClienteController {
 	 * @param flash para enviar mensajes de confirmacion
 	 * @return te muetra el form.html
 	 */
+	@PreAuthorize("hasRole('ROLE_ADMIN')")
 	@RequestMapping(value = "/form/{id}")
 	public String editar(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 		Cliente cliente = null;
@@ -221,6 +227,7 @@ public class ClienteController {
 	 * @param status  para validar los atributos creados en una sesion
 	 * @return nos redirige a listar.html
 	 */
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
 	public String guardar(@Valid Cliente cliente, BindingResult result, Model model,
 			@RequestParam("file") MultipartFile foto, RedirectAttributes flash, SessionStatus status) {
@@ -266,6 +273,7 @@ public class ClienteController {
 	 * @param flash enviar mensajes de confirmacion
 	 * @return redirect to listar.html
 	 */
+	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/eliminar/{id}")
 	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
 

@@ -3,6 +3,7 @@ package com.bolsadeideas.springboot.app;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -12,6 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 import com.bolsadeideas.springboot.app.auth.handler.LoginSuccessHandler;
 
+@EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration
 public class SpringSecurityConfig {
 
@@ -62,11 +64,14 @@ public class SpringSecurityConfig {
                 .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar")
                 .permitAll()
                 //añadir rutas privadas
-                .requestMatchers("/ver/**").hasAnyRole("USER")
-                .requestMatchers("/uploads/**").hasAnyRole("USER")
-                .requestMatchers("/form/**").hasAnyRole("ADMIN")
-                .requestMatchers("/eliminar/**").hasAnyRole("ADMIN")
-                .requestMatchers("/factura/**").hasAnyRole("ADMIN")
+				/* 
+                 * las comentamos para poder usar anotaciones 
+				 * .requestMatchers("/ver/**").hasAnyRole("USER")
+				 * .requestMatchers("/uploads/**").hasAnyRole("USER")
+				 * .requestMatchers("/form/**").hasAnyRole("ADMIN")
+				 * .requestMatchers("/eliminar/**").hasAnyRole("ADMIN")
+				 * .requestMatchers("/factura/**").hasAnyRole("ADMIN")
+				 */
                 .anyRequest().authenticated()
                 //implementacion del formulario login
                 .and()
