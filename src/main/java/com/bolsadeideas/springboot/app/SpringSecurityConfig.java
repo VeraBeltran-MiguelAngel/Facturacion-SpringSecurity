@@ -1,24 +1,19 @@
 package com.bolsadeideas.springboot.app;
 
-
-import javax.sql.DataSource;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import com.bolsadeideas.springboot.app.auth.handler.LoginSuccessHandler;
+import com.bolsadeideas.springboot.app.models.service.JpaUserDetailsService;
 
 // si no pones esta linea no puedes usar las anotaciones @Secured y @Preauthorize
 @EnableMethodSecurity(securedEnabled = true, prePostEnabled = true)
 @Configuration
-@EnableWebSecurity
 public class SpringSecurityConfig {
 
     @Autowired // mensaje de exito al iniciar sesion
@@ -27,8 +22,8 @@ public class SpringSecurityConfig {
     @Autowired // para encriptar contraseñas lo inyectasmos de MVCConfig
     private BCryptPasswordEncoder passwordEncoder;
 
-    @Autowired // para conectarse a la base de datos
-    private DataSource dataSource;
+    @Autowired
+    private JpaUserDetailsService userDetailService;
 
     /**
      * Filtrar las rutas que se pueden acceder dependiendo el rol
@@ -99,20 +94,15 @@ public class SpringSecurityConfig {
      */
 
      /**
-      * Metodo con JDBC 
+      * Metodo para autenticar el usuario y contraseña  
       * @param http
       * @return
       * @throws Exception
       */
-    @Bean
-    AuthenticationManager authManager(HttpSecurity http) throws Exception {
-        return http.getSharedObject(AuthenticationManagerBuilder.class)
-                .jdbcAuthentication()
-                .dataSource(dataSource)
-                .passwordEncoder(passwordEncoder)
-                .usersByUsernameQuery("select username, password, enabled from users where username=?")
-                .authoritiesByUsernameQuery(
-                        "select u.username, a.authority from authorities a inner join users u on (a.user_id=u.id) where u.username=?")
-                .and().build();
+      @Autowired
+      public void userDetailsService(AuthenticationManagerBuilder build) throws Exception {
+         build.userDetailsService(userDetailService) //usuario autenticado
+         .passwordEncoder(passwordEncoder); // contraseña encriptada
+      }
+
     }
-}
