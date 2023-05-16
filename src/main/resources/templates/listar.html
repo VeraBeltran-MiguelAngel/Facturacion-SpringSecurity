@@ -21,10 +21,10 @@
               <tr>
                 <!--solo muestra el recurso si el usuario tiene rol usuario-->
                 <th sec:authorize="hasRole('ROLE_USER')" >ID</th>
-                <th>Nombre</th>
-                <th>Apellido</th>
-                <th>Email</th>
-                <th>Fecha</th>
+                <th th:text="#{text.cliente.nombre}">Nombre</th>
+                <th th:text="#{text.cliente.apellido}">Apellido</th>
+                <th th:text="#{text.cliente.email}">Email</th>
+                <th th:text="#{text.cliente.createAt}">Fecha</th>
                  <!--solo muestra el recurso si el usuario tiene rol admin-->
                 <th sec:authorize="hasRole('ROLE_ADMIN')">Crear factura</th>
                 <th sec:authorize="hasRole('ROLE_ADMIN')">Editar</th>

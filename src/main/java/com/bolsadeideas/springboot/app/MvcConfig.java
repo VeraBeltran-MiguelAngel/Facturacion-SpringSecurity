@@ -70,7 +70,7 @@ public class MvcConfig implements WebMvcConfigurer {
 	 * @return
 	 */
 	@Bean
-	public LocaleResolver localResolver() {
+	public LocaleResolver localeResolver() {
 
 		// se guarda en la session http cada que modifiquemos un nuevo locale
 		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
