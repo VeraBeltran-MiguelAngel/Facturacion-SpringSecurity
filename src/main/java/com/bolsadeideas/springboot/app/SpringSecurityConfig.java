@@ -35,7 +35,7 @@ public class SpringSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.csrf().disable().cors().and()
+        http.cors().and()
                 .authorizeHttpRequests()
                 // añadir las rutas publicas
                 .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar")
