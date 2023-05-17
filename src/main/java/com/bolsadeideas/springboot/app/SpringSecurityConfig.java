@@ -38,7 +38,7 @@ public class SpringSecurityConfig {
         http.cors().and()
                 .authorizeHttpRequests()
                 // añadir las rutas publicas
-                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar")
+                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar", "/locale")
                 .permitAll()
                 // añadir rutas privadas
                 /*

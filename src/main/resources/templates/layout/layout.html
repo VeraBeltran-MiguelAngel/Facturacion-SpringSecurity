@@ -74,13 +74,26 @@
             <!--menu de navaegacion para el lenguaje -->
             <ul class="navbar-nav me-auto">
               <li class="nav-item mx-1">
-                <a class="btn btn-outline-success" href="?lang=es_ES">ES</a>
+                <!--para no perder la ultima url en el paginador, ya que al cambiar de idioma regresa a la pagina uno-->
+                <a
+                  class="btn btn-outline-success"
+                  th:href="@{/locale(lang=es_ES)}"
+                  >ES</a
+                >
               </li>
               <li class="nav-item mx-1">
-                <a class="btn btn-outline-success" href="?lang=en_US">EN</a>
+                <a
+                  class="btn btn-outline-success"
+                  th:href="@{/locale(lang=en_US)}"
+                  >EN</a
+                >
               </li>
               <li class="nav-item mx-1">
-                <a class="btn btn-outline-success" href="?lang=de_DE">DE</a>
+                <a
+                  class="btn btn-outline-success"
+                  th:href="@{/locale(lang=de_DE)}"
+                  >DE</a
+                >
               </li>
             </ul>
           </div>

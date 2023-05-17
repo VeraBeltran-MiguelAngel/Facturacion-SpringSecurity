@@ -5,9 +5,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.net.MalformedURLException;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -53,6 +55,8 @@ public class ClienteController {
 	private IClienteService clienteService;
 	@Autowired
 	private IUploadFileService uploadFileService;
+	@Autowired // a traves de este objeto obtenemos el idioma
+	private MessageSource messageSource;
 
 	/**
 	 * Mostrar la imagen por Http para que spring no trunque o borre la extension
@@ -118,7 +122,7 @@ public class ClienteController {
 	 */
 	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
 	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model,
-			Authentication authentication, HttpServletRequest request) {
+			Authentication authentication, HttpServletRequest request, Locale locale) {
 
 		if (authentication != null) {
 			logger.info("Hola usuario autenticado, tu username es:".concat(authentication.getName()));
@@ -163,9 +167,10 @@ public class ClienteController {
 		// lista paginada
 		Page<Cliente> clientes = clienteService.findAll(pageRequest);
 		// url, page
-		PageRender<Cliente> pageRender = new PageRender<>("/listar", clientes);
+		PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);
 
-		model.addAttribute("titulo", "Listado de clientes");
+		model.addAttribute("titulo", 
+		messageSource.getMessage("text.cliente.listar.titulo", null, locale));
 		// aqui ya viene el lisstado con paginacion
 		model.addAttribute("clientes", clientes);
 		model.addAttribute("page", pageRender);
