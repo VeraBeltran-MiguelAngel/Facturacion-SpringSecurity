@@ -12,7 +12,7 @@
             <a
               class="btn btn-primary btn-xs"
               th:href="@{'/ver/' + ${factura.cliente.id}}"
-              th:text="'&laquo; volver'"
+              th:utext="#{text.global.volver}"
             ></a>
           </h4>
 
@@ -23,8 +23,9 @@
           >
             <div class="form-group row">
               <label
+                for="cliente"
                 class="col-sm-2 col-form-label"
-                th:text="'Cliente'"
+                th:text="#{text.factura.form.cliente}"
               ></label>
               <div class="col-sm-6">
                 <input
@@ -39,7 +40,7 @@
               <label
                 for="descripcion"
                 class="col-sm-2 col-form-label"
-                th:text="'Descripción'"
+                th:text="#{text.cliente.factura.descripcion}"
               ></label>
               <!--Si tiene errores muestra el mensaje de error-->
               <div class="col-sm-6">
@@ -61,7 +62,7 @@
               <label
                 for="observacion"
                 class="col-sm-2 col-form-label"
-                th:text="'Observación'"
+                th:text="#{text.factura.form.observacion}"
               ></label>
 
               <div class="col-sm-6">
@@ -76,7 +77,7 @@
               <label
                 for="buscar_producto"
                 class="col-sm-2 col-form-label"
-                th:text="'Buscar producto'"
+                th:text="#{text.factura.form.buscar}"
               ></label>
 
               <div class="col-sm-6">
@@ -97,11 +98,11 @@
             >
               <thead>
                 <tr>
-                  <th>Nombre</th>
-                  <th>Precio</th>
-                  <th>Cantidad</th>
-                  <th>Total</th>
-                  <th>Eliminar</th>
+                  <th th:text="#{text.factura.form.item.nombre}">Nombre</th>
+                  <th th:text="#{text.factura.form.item.precio}">Precio</th>
+                  <th th:text="#{text.factura.form.item.cantidad}">Cantidad</th>
+                  <th th:text="#{text.factura.form.item.total}">Total</th>
+                  <th th:text="#{text.factura.form.item.eliminar}">Eliminar</th>
                 </tr>
               </thead>
               <tbody>
@@ -109,7 +110,8 @@
               </tbody>
             </table>
             <h5>
-              Total<span class="badge badge-secondary" id="gran_total">0</span>
+              <span th:text="#{text.factura.form.total}">Total</span>
+              <span class="badge badge-secondary" id="gran_total">0</span>
             </h5>
 
             <div class="form-group row">

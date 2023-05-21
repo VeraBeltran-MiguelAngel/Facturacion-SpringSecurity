@@ -5,6 +5,11 @@
 >
   <head th:replace="layout/layout :: head"></head>
   <body>
+    <div
+      id="i18n_eliminar_cliente"
+      th:text="#{text.cliente.eliminarOk}"
+      style="display: none"
+    ></div>
     <header th:replace="layout/layout :: header"></header>
     <!-- padding en el eje y  -->
     <div class="container py-4">
@@ -12,7 +17,11 @@
         <div class="card-header" th:text="${titulo}"></div>
         <div class="card-body">
           <h4 class="card-title">
-            <a sec:authorize="hasRole('ROLE_ADMIN')" th:href="@{/form}" class="btn btn-primary btn-xs"
+            <a
+              sec:authorize="hasRole('ROLE_ADMIN')"
+              th:href="@{/form}"
+              class="btn btn-primary btn-xs"
+              th:text="#{text.cliente.crear}"
               >crear cliente</a
             >
           </h4>
@@ -20,15 +29,30 @@
             <thead class="thead-dark">
               <tr>
                 <!--solo muestra el recurso si el usuario tiene rol usuario-->
-                <th sec:authorize="hasRole('ROLE_USER')" >ID</th>
+                <th sec:authorize="hasRole('ROLE_USER')">ID</th>
                 <th th:text="#{text.cliente.nombre}">Nombre</th>
                 <th th:text="#{text.cliente.apellido}">Apellido</th>
                 <th th:text="#{text.cliente.email}">Email</th>
                 <th th:text="#{text.cliente.createAt}">Fecha</th>
-                 <!--solo muestra el recurso si el usuario tiene rol admin-->
-                <th sec:authorize="hasRole('ROLE_ADMIN')">Crear factura</th>
-                <th sec:authorize="hasRole('ROLE_ADMIN')">Editar</th>
-                <th sec:authorize="hasRole('ROLE_ADMIN')">Eliminar</th>
+                <!--solo muestra el recurso si el usuario tiene rol admin-->
+                <th
+                  th:text="#{text.cliente.factura.crear}"
+                  sec:authorize="hasRole('ROLE_ADMIN')"
+                >
+                  Crear factura
+                </th>
+                <th
+                  th:text="#{text.cliente.editar}"
+                  sec:authorize="hasRole('ROLE_ADMIN')"
+                >
+                  Editar
+                </th>
+                <th
+                  th:text="#{text.cliente.eliminar}"
+                  sec:authorize="hasRole('ROLE_ADMIN')"
+                >
+                  Eliminar
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -49,22 +73,22 @@
                   <a
                     class="btn btn-success btn-xs"
                     th:href="@{'/factura/form/' +${cliente.id}}"
-                    th:text="'crear factura'"
+                    th:text="#{text.cliente.factura.crear}"
                   ></a>
                 </td>
                 <td sec:authorize="hasRole('ROLE_ADMIN')">
                   <a
                     class="btn btn-primary btn-xs"
                     th:href="@{/form/}+${cliente.id}"
-                    th:text="editar"
+                    th:text="#{text.cliente.editar}"
                   ></a>
                 </td>
                 <td sec:authorize="hasRole('ROLE_ADMIN')">
                   <a
                     class="btn btn-danger btn-xs"
                     th:href="@{/eliminar/}+${cliente.id}"
-                    th:text="eliminar"
-                    onclick="return confirm('Estas seguro que quieres eliminar?');"
+                    th:text="#{text.cliente.eliminar}"
+                    onclick="return confirm(document.getElementById('i18n_eliminar_cliente').innerHTML);"
                   ></a>
                 </td>
               </tr>

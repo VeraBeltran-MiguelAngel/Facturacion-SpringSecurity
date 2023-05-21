@@ -11,6 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
+
 @Entity
 @Table(name="facturas_items")
 public class ItemFactura implements Serializable {
@@ -20,6 +21,7 @@ public class ItemFactura implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	private Long id;
+	
 	private Integer cantidad;// nos permite calcular el total (cantidad de elementos por el precio)
 	
 	@ManyToOne(fetch = FetchType.LAZY)

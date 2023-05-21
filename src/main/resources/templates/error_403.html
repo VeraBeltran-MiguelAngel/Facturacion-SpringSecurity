@@ -5,15 +5,21 @@
     <header th:replace="layout/layout :: header"></header>
     <div class="container py-4">
       <div class="card bg-danger text-white">
-        <div class="card-header">Error: Acceso denegado!</div>
+        <div class="card-header" th:text="#{text.security.error.403.titulo}">
+        Acceso denegado!
+        </div>
         <div class="card-body">
           <h5 class="card-title">
-            Lo sentimos 
             <!--podemos usar el objeto global httpServletRequest.remoteUser o-->
-            <span th:text="${#authentication.name}"></span> NO tienes
-            permisos para acceder a este recurso.
+            <span
+              th:utext="#{text.security.error.403.permiso(${#authentication.name})}"
+            ></span>
           </h5>
-          <a th:href="@{/listar}" class="btn btn-outline-light" role="button"
+          <a
+            th:href="@{/listar}"
+            class="btn btn-outline-light"
+            role="button"
+            th:text="#{text.security.error.403.volver}"
             >Ir al inicio</a
           >
         </div>

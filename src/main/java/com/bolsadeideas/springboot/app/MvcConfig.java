@@ -15,8 +15,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 //import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.springframework.web.servlet.i18n.CookieLocaleResolver;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
-import org.springframework.web.servlet.i18n.SessionLocaleResolver;
+//import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 //para ver  las imagenes en la vista
 @Configuration
@@ -73,7 +74,9 @@ public class MvcConfig implements WebMvcConfigurer {
 	public LocaleResolver localeResolver() {
 
 		// se guarda en la session http cada que modifiquemos un nuevo locale
-		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+		//SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+		// si deseas conservar el lenguaje actual antes de cerrar sesion usas:
+		CookieLocaleResolver localeResolver = new CookieLocaleResolver();
 		localeResolver.setDefaultLocale(new Locale("es", "ES"));
 		return localeResolver;
 
