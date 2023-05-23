@@ -16,6 +16,12 @@
               th:utext="#{text.global.volver}"
               >&laquo; volver
             </a>
+            <!--parametro de la url ('nombre de parametro= valor')-->
+            <a
+              class="btn btn-danger btn-xs float-right"
+              th:href="@{'/factura/ver/' + ${factura.id}(format=pdf)}"
+              >PDF</a
+            >
           </h4>
           <!-- Datos Cliente-->
           <ul class="list-group my-2">
