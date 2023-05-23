@@ -1,8 +1,14 @@
 package com.bolsadeideas.springboot.app.view.pdf;
 
+import java.awt.Color;
+import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.view.document.AbstractPdfView;
 
 import com.bolsadeideas.springboot.app.models.entity.Factura;
@@ -21,6 +27,12 @@ import jakarta.servlet.http.HttpServletResponse;
                           // lo muestre en un PDF
 public class FacturaPdfView extends AbstractPdfView {
 
+    @Autowired
+    private MessageSource messageSource;
+
+    @Autowired
+    private LocaleResolver localeResolver;
+
     /**
      * @param model    guarda datos a la vista
      * @param document representa al PDF
@@ -33,42 +45,73 @@ public class FacturaPdfView extends AbstractPdfView {
         // tiene que llamar igual al objeto que se guarda en 'ver ' de facturacontroller
         Factura factura = (Factura) model.get("factura");
 
-        //tabla con una columna y tres filas 
+        Locale locale = localeResolver.resolveLocale(request);
+
+        // segunda forma de traducir (este objeto tiene el locale y el messageSource por
+        // debajo)
+        MessageSourceAccessor mensajes = getMessageSourceAccessor();
+
+        // tabla con una columna y tres filas
         PdfPTable tabla = new PdfPTable(1);
-        //espacio despues de la tabla 
+        // espacio despues de la tabla
         tabla.setSpacingAfter(20);
-        tabla.addCell("Datos del cliente");
+
+        PdfPCell cell = null;
+        // constructor: ponemos la frase que tendra la celda(forma sin traducir)
+        // cell = new PdfPCell(new Phrase("Datos del cliente"));
+        // traducido
+        cell = new PdfPCell(new Phrase(messageSource.getMessage("text.factura.ver.datos.cliente", null, locale)));
+        // asignar color rgb
+        cell.setBackgroundColor(new Color(184, 218, 255));
+        cell.setPadding(8f);
+        tabla.addCell(cell);
+
         tabla.addCell(factura.getCliente().getNombre() + "" + factura.getCliente().getApellido());
         tabla.addCell(factura.getCliente().getEmail());
 
-        //tabla 2
+        // tabla 2
         PdfPTable tabla2 = new PdfPTable(1);
         tabla2.setSpacingAfter(20);
-        tabla2.addCell("Datos de la Factura");
-        tabla2.addCell("Folio: " + factura.getId());
-        tabla2.addCell("Descripcion: " + factura.getDescripcion());
-        tabla2.addCell("Fecha: " + factura.getCreateAt());
+
+        cell = new PdfPCell(new Phrase(messageSource.getMessage("text.factura.ver.datos.factura", null, locale)));
+        // asignar color rgb
+        cell.setBackgroundColor(new Color(195, 230, 203));
+        cell.setPadding(8f);
+
+        tabla2.addCell(cell);
+        //2° forma de traducir 
+        tabla2.addCell(mensajes.getMessage("text.cliente.factura.folio") + ": " + factura.getId());
+        tabla2.addCell(mensajes.getMessage("text.cliente.factura.descripcion") + ": " + factura.getDescripcion());
+        tabla2.addCell(mensajes.getMessage("text.cliente.factura.fecha") + ": " + factura.getCreateAt());
 
         document.add(tabla);
         document.add(tabla2);
 
-        //tabla 3 
+        // tabla 3
 
         PdfPTable tabla3 = new PdfPTable(4);
-        tabla3.addCell("Producto");
-        tabla3.addCell("Precio");
-        tabla3.addCell("Cantidad");
-        tabla3.addCell("Total");
+        // cambiar el tamaño de 'producto'(3.5) usamos un arrelog de float para tener
+        // mayor presicion , donde tenemos las medidas de cada columna
+        tabla3.setWidths(new float[] { 3.5f, 1, 1, 1 });
+
+        tabla3.addCell(mensajes.getMessage("text.factura.form.item.nombre"));
+        tabla3.addCell(mensajes.getMessage("text.factura.form.item.precio"));
+        tabla3.addCell(mensajes.getMessage("text.factura.form.item.cantidad"));
+        tabla3.addCell(mensajes.getMessage("text.factura.form.item.total"));
 
         for (ItemFactura item : factura.getItems()) {
             tabla3.addCell(item.getProducto().getNombre());
             tabla3.addCell(item.getProducto().getPrecio().toString());
-            tabla3.addCell(item.getCantidad().toString());
+
+            cell = new PdfPCell(new Phrase(item.getCantidad().toString()));
+            cell.setHorizontalAlignment(PdfPCell.ALIGN_CENTER);
+            tabla3.addCell(cell);
             tabla3.addCell(item.calcularImporte().toString());
         }
 
-        PdfPCell cell = new PdfPCell(new Phrase("Total: "));
-        //que ocupe tres columnas
+        // creamos un objeto celda
+        cell = new PdfPCell(new Phrase(mensajes.getMessage("text.factura.form.total") + ": "));
+        // que ocupe tres columnas
         cell.setColspan(3);
         // alinear a la derecha
         cell.setHorizontalAlignment(PdfPCell.ALIGN_RIGHT);
