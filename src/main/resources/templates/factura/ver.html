@@ -16,11 +16,17 @@
               th:utext="#{text.global.volver}"
               >&laquo; volver
             </a>
-            <!--parametro de la url ('nombre de parametro= valor')-->
+            <!--parametro de la url ('nombre de parametro= valor') con margen en eje x de 2-->
             <a
-              class="btn btn-danger btn-xs float-right"
+              class="btn btn-danger btn-xs float-right mx-2"
               th:href="@{'/factura/ver/' + ${factura.id}(format=pdf)}"
               >PDF</a
+            >
+            <!--link de excel -->
+            <a
+              class="btn btn-success btn-xs float-right"
+              th:href="@{'/factura/ver/' + ${factura.id}(format=xlsx)}"
+              >XLS</a
             >
           </h4>
           <!-- Datos Cliente-->

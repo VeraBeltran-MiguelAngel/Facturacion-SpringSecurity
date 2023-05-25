@@ -27,6 +27,7 @@ import jakarta.servlet.http.HttpServletResponse;
                           // lo muestre en un PDF
 public class FacturaPdfView extends AbstractPdfView {
 
+    //primera forma de traducir 
     @Autowired
     private MessageSource messageSource;
 
