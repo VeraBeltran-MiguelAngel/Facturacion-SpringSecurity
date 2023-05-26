@@ -24,6 +24,11 @@
               th:text="#{text.cliente.crear}"
               >crear cliente</a
             >
+            <a
+              class="btn btn-success btn-xs float-right"
+              th:href="@{'/listar'(format=csv)}"
+              >CSV</a
+            >
           </h4>
           <table class="table table-striped table-bordered">
             <thead class="thead-dark">
