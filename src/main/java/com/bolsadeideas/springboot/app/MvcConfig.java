@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Bean;
 //import org.slf4j.Logger;
 //import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -74,7 +75,7 @@ public class MvcConfig implements WebMvcConfigurer {
 	public LocaleResolver localeResolver() {
 
 		// se guarda en la session http cada que modifiquemos un nuevo locale
-		//SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+		// SessionLocaleResolver localeResolver = new SessionLocaleResolver();
 		// si deseas conservar el lenguaje actual antes de cerrar sesion usas:
 		CookieLocaleResolver localeResolver = new CookieLocaleResolver();
 		localeResolver.setDefaultLocale(new Locale("es", "ES"));
@@ -101,6 +102,17 @@ public class MvcConfig implements WebMvcConfigurer {
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub
 		registry.addInterceptor(localeChangeInterceptor());
+	}
+
+	/** convertir un objeto a XML el proceso se llama "Marshalling" */
+	@Bean
+	public Jaxb2Marshaller jaxb2Marshaller() {
+		Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
+		// es la clase root que contiene los elementos para nuestro XML 
+		marshaller.setClassesToBeBound(new Class[] { com.bolsadeideas.springboot.app.view.xml.ClienteList.class
+		});
+		return marshaller;
+
 	}
 
 }

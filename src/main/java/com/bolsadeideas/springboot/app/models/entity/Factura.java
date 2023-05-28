@@ -20,42 +20,42 @@ import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.xml.bind.annotation.XmlTransient;
 
 @Entity
-@Table(name="facturas")
+@Table(name = "facturas")
 public class Factura implements Serializable {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	@NotEmpty
 	private String descripcion;
-	
+
 	private String observacion;
-	
+
 	@Temporal(TemporalType.DATE)
-	@Column(name="create_at")
-	private Date createAt; //fecha interna de creacion
-	
-	@ManyToOne(fetch=FetchType.LAZY)//para indicar muchas facturas - un cliente(buena practica)
+	@Column(name = "create_at")
+	private Date createAt; // fecha interna de creacion
+
+	@ManyToOne(fetch = FetchType.LAZY) // para indicar muchas facturas - un cliente(buena practica)
 	private Cliente cliente;
-	
-	@OneToMany(fetch=FetchType.LAZY, cascade=CascadeType.ALL)// una factura muchos items 
-	@JoinColumn(name="factura_id")
+
+	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // una factura muchos items
+	@JoinColumn(name = "factura_id")
 	private List<ItemFactura> items;
-	
+
 	public Factura() {
-		this.items= new ArrayList<ItemFactura>();
+		this.items = new ArrayList<ItemFactura>();
 	}
-	
-	
-	//antes de persistir la factura le asigna la fecha 
+
+	// antes de persistir la factura le asigna la fecha
 	@PrePersist
 	public void prePersist() {
-		createAt= new Date();
+		createAt = new Date();
 	}
 
 	public Long getId() {
@@ -90,6 +90,12 @@ public class Factura implements Serializable {
 		this.createAt = createAt;
 	}
 
+	/**
+	 * ?(cuando se serializa no llama a este metodo (no lo inclute en el XML), si lo
+	 * ?omites genera un xml infinito por que un cliente tiene x factura y esa
+	 * ?factura tiene un cliente ya que es una relacion bidireccional )
+	 */
+	@XmlTransient
 	public Cliente getCliente() {
 		return cliente;
 	}
@@ -105,20 +111,20 @@ public class Factura implements Serializable {
 	public void setItems(List<ItemFactura> items) {
 		this.items = items;
 	}
-	
+
 	public void addItemFactura(ItemFactura item) {
 		this.items.add(item);
 	}
-	
+
 	public Double getTotal() {
-		Double total= 0.0;
-		
+		Double total = 0.0;
+
 		int size = items.size();
-		
+
 		for (int i = 0; i < size; i++) {
 			total += items.get(i).calcularImporte();
 		}
-		
+
 		return total;
 	}
 
