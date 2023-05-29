@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -42,7 +44,9 @@ public class Factura implements Serializable {
 	private Date createAt; // fecha interna de creacion
 
 	@ManyToOne(fetch = FetchType.LAZY) // para indicar muchas facturas - un cliente(buena practica)
-	private Cliente cliente;
+	// si se omite se genera un ciclo infinito en el json
+	@JsonBackReference // anotacion usada en tablas hijo para evitar problemas al generar el json
+	private Cliente cliente; //se omite del jason
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL) // una factura muchos items
 	@JoinColumn(name = "factura_id")

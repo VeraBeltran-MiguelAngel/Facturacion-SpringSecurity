@@ -2,6 +2,8 @@ package com.bolsadeideas.springboot.app.models.entity;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -11,22 +13,24 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-
 @Entity
-@Table(name="facturas_items")
+@Table(name = "facturas_items")
 public class ItemFactura implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	private Integer cantidad;// nos permite calcular el total (cantidad de elementos por el precio)
-	
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name="producto_id")
-	private Producto producto ;
+
+	@ManyToOne(fetch = FetchType.LAZY) // si pones 'egaer' trae los productos inmediatamente no en carga perezosa junto
+										// con los itemsafactura ya trae los productos
+	@JoinColumn(name = "producto_id")
+	//atributos a ignorar de producto
+	@JsonIgnoreProperties({"hibernateLazyInitializer","handler"})
+	private Producto producto;
 
 	public Long getId() {
 		return id;
@@ -43,7 +47,7 @@ public class ItemFactura implements Serializable {
 	public void setCantidad(Integer cantidad) {
 		this.cantidad = cantidad;
 	}
-	
+
 	public Double calcularImporte() {
 		return cantidad.doubleValue() * producto.getPrecio();
 	}
@@ -55,7 +59,5 @@ public class ItemFactura implements Serializable {
 	public void setProducto(Producto producto) {
 		this.producto = producto;
 	}
-
-	
 
 }
