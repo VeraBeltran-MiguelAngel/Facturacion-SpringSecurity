@@ -37,8 +37,9 @@ public class SpringSecurityConfig {
 
         http.cors().and()
                 .authorizeHttpRequests()
-                // añadir las rutas publicas
-                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar", "/locale")
+                // añadir las rutas publicas , si pondes ** indicas que se permite cualquier
+                // ruta que tenga primero la palabra antes de los **
+                .requestMatchers("/", "/css/**", "/js/**", "/images/**", "/listar**", "/locale", "/api/clientes/**")
                 .permitAll()
                 // añadir rutas privadas
                 /*
@@ -93,16 +94,17 @@ public class SpringSecurityConfig {
      *       }
      */
 
-     /**
-      * Metodo para autenticar el usuario y contraseña  
-      * @param http
-      * @return
-      * @throws Exception
-      */
-      @Autowired
-      public void userDetailsService(AuthenticationManagerBuilder build) throws Exception {
-         build.userDetailsService(userDetailService) //usuario autenticado
-         .passwordEncoder(passwordEncoder); // contraseña encriptada
-      }
-
+    /**
+     * Metodo para autenticar el usuario y contraseña
+     * 
+     * @param http
+     * @return
+     * @throws Exception
+     */
+    @Autowired
+    public void userDetailsService(AuthenticationManagerBuilder build) throws Exception {
+        build.userDetailsService(userDetailService) // usuario autenticado
+                .passwordEncoder(passwordEncoder); // contraseña encriptada
     }
+
+}

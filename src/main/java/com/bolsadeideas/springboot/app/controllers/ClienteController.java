@@ -5,6 +5,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import java.net.MalformedURLException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.springframework.http.HttpHeaders;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,6 +41,7 @@ import com.bolsadeideas.springboot.app.models.entity.Cliente;
 import com.bolsadeideas.springboot.app.models.service.IClienteService;
 import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 import com.bolsadeideas.springboot.app.util.paginator.PageRender;
+import com.bolsadeideas.springboot.app.view.xml.ClienteList;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -113,6 +116,25 @@ public class ClienteController {
 		model.put("titulo", messageSource.getMessage("text.cliente.detalle.titulo", null, locale).concat(": ")
 				.concat(cliente.getNombre()));
 		return "ver";
+	}
+
+	/**
+	 * Metodo handler para listar una vista REST
+	 * 
+	 * @return en formato JSON
+	 */
+	@GetMapping(value = "/listar-rest")
+	/**
+	 * el listado de clientes se va a almacenar en el cuerpo de la respuesta y al
+	 * guardarse de forma automatica spring  va a deducir que es un REST (JSON o XML)
+	 
+	public @ResponseBody List<Cliente> listarRest() { // de esta manera solo devolvemos JSON
+		return clienteService.findAll();
+	} */
+
+	/**si deseas que regrese XML y JSON  http://localhost:8080/listar-rest?format=xml/json*/
+	public @ResponseBody ClienteList listarRest() { // de esta manera devolvemos XML y JSON
+		return new ClienteList(clienteService.findAll());
 	}
 
 	/**
